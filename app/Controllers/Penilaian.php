@@ -12,7 +12,7 @@ class Penilaian extends BaseController
     {
     
         $model = new PenilaianModel();
-        $data = $model->findAll(); // ambil semua data dari tabel mahasiswa
+        $data = $model->getPenilaian(); // ambil semua data dari tabel mahasiswa
 
         return $this->response->setJSON($data); // tampilkan dalam bentuk JSON
 
@@ -50,6 +50,51 @@ class Penilaian extends BaseController
                 'status'  => 400,
                 'message' => 'Gagal menambahkan data penilaian'
             ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        }
+    }
+    public function update($id)
+    {
+        $model = new PenilaianModel();
+        $json = $this->request->getJSON();
+
+        // Siapkan data untuk update
+        $data = [
+            'id_prodi'      => $json->id_prodi,
+            'id_dosen'      => $json->id_dosen,
+            'sks'           => $json->sks,
+            'aspek_nilai'   => $json->aspek_nilai,
+            'saran'         => $json->saran,
+        ];
+
+        // Validasi input
+        if (empty($data['id_prodi']) || empty($data['id_dosen']) || empty($data['sks']) || empty($data['aspek_nilai'])) {
+            return $this->response->setJSON([
+                'status'  => 400,
+                'message' => 'Semua kolom harus diisi'
+            ])->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        }
+
+        // Cek apakah data penilaian ada di database
+        $penilaian = $model->find($id);
+        if (!$penilaian) {
+            return $this->response->setJSON([
+                'status'  => 404,
+                'message' => 'Penilaian tidak ditemukan'
+            ])->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+
+        // Update data penilaian
+        if ($model->update($id, $data)) {
+            return $this->response->setJSON([
+                'status'  => 200,
+                'message' => 'Data penilaian berhasil diupdate',
+                'data'    => $data
+            ])->setStatusCode(ResponseInterface::HTTP_OK);
+        } else {
+            return $this->response->setJSON([
+                'status'  => 500,
+                'message' => 'Gagal update data penilaian'
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

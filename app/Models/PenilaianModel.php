@@ -43,4 +43,17 @@ class PenilaianModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    
+    public function getPenilaian()
+{
+    return $this->db->table('penilaian')
+        ->select('penilaian.id_penilaian, penilaian.sks, penilaian.aspek_nilai, penilaian.saran, 
+                prodi.nama_prodi, dosen.nama_dosen')
+        ->join('prodi', 'prodi.id_prodi = penilaian.id_prodi', 'left')
+        ->join('dosen', 'dosen.id_dosen = penilaian.id_dosen', 'left')
+        ->get()
+        ->getResultArray();
+}
+
 }
